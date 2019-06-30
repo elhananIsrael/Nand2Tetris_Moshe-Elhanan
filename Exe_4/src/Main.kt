@@ -6,17 +6,39 @@ import java.io.File
 
 fun main() {
 
-    var  h: JackTokenizer = JackTokenizer("C:\\MyProjects\\intellijProjects\\examples\\tests\\exe4Test\\Main.jack")
+    try
+    {
+        println("Please enter input dir path:")
+        var inputDirPath = readLine()!!
 
+        println("Please enter output dir path:")
+        var outputDirPath = readLine()
 
+        File(inputDirPath).walkTopDown().forEach {
+            if (it.isFile)
+                if (File(it.name).extension == "jack") {
 
-    File("C:/MyProjects/intellijProjects/examples/tests/exe4Output/output2T.xml").writeText(h.allTokXml) // write Txml file
+                    var outputFileTokenizer = outputDirPath + '\\' + File(it.name).nameWithoutExtension + "T.xml"
+                    if (File(outputFileTokenizer).exists()) {
+                        File(outputFileTokenizer).delete()
+                    }
+                    var tokenizer: JackTokenizer = JackTokenizer(it.path)
+                    tokenizer.writeTokInOutputFile(outputFileTokenizer)
 
+                    var outputFileParser = outputDirPath + '\\' + File(it.name).nameWithoutExtension + ".xml"
+                    if (File(outputFileParser).exists()) {
+                        File(outputFileParser).delete()
+                    }
 
-    var  h2: CompilationEngine = CompilationEngine(
-        "C:/MyProjects/intellijProjects/examples/tests/exe4Output/output2T.xml",
-        "C:/MyProjects/intellijProjects/examples/tests/exe4Output/output22.xml")
+                    var parser: CompilationEngine = CompilationEngine(outputFileTokenizer, outputFileParser)
 
-
-
+                }
+        }
+    }
+catch (e:IOException) {
+    println("IOException: error.")
 }
+}
+
+//C:\MyProjects\intellijProjects\examples\tests\exe4Test         //input test
+//C:\MyProjects\intellijProjects\examples\tests\exe4Output       //output

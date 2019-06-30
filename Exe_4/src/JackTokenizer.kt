@@ -38,20 +38,6 @@ class JackTokenizer {
             this.input= this.input.replace( Regex(allCommentsPtrn.toString()), " ")
             this.input= this.input.replace( Regex("[\\s]+")," ")
 
-
-            while (this.hasMoreTokens())
-            {
-                this.advance()
-            }
-
-            allTokXml = "<tokens>\n"
-
-            this.allTokens.forEach{
-
-                allTokXml += it.toXmlString()     }
-
-            allTokXml += "</tokens>"
-
         }
         catch (e:IOException) {
             println("IOException: file not found.")
@@ -247,6 +233,28 @@ class JackTokenizer {
         else return "Unknown"
     }
 
+    fun writeTokInOutputFile (outputFilePath : String)  {
+
+        try {
+            while (this.hasMoreTokens()) {
+                this.advance()
+            }
+
+            allTokXml = "<tokens>\n"
+
+            this.allTokens.forEach {
+
+                allTokXml += it.toXmlString()
+            }
+
+            allTokXml += "</tokens>"
+
+            File(outputFilePath).writeText(allTokXml) // write Txml file
+        }
+        catch (e:IOException) {
+            println("IOException: error.")
+        }
+    }
 
 
 
