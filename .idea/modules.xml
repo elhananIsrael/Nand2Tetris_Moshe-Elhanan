@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Exe_4/Exe_4.iml" filepath="$PROJECT_DIR$/Exe_4/Exe_4.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Exe_5/Exe_5.iml" filepath="$PROJECT_DIR$/Exe_5/Exe_5.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Nand2Tetris_Moshe-Elhanan.iml" filepath="$PROJECT_DIR$/Nand2Tetris_Moshe-Elhanan.iml" />
+    </modules>
+  </component>
+</project>
