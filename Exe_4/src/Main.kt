@@ -22,6 +22,7 @@ fun main() {
                     if (File(outputFileTokenizer).exists()) {
                         File(outputFileTokenizer).delete()
                     }
+
                     var tokenizer: JackTokenizer = JackTokenizer(it.path)
                     tokenizer.writeTokInOutputFile(outputFileTokenizer)
 
