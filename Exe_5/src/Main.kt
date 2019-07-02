@@ -25,7 +25,7 @@ fun main() {
                     var tokenizer: JackTokenizer = JackTokenizer(it.path)
                     tokenizer.writeTokInOutputFile(outputFileTokenizer)
 
-                    var outputFileParser = outputDirPath + '\\' + File(it.name).nameWithoutExtension + ".xml"
+                    var outputFileParser = outputDirPath + '\\' + File(it.name).nameWithoutExtension + ".vm"
                     if (File(outputFileParser).exists()) {
                         File(outputFileParser).delete()
                     }
@@ -40,5 +40,5 @@ catch (e:IOException) {
 }
 }
 
-//C:\MyProjects\intellijProjects\examples\tests\exe4Test         //input test
-//C:\MyProjects\intellijProjects\examples\tests\exe4Output       //output
+//C:\MyProjects\intellijProjects\examples\tests\exe5Test         \Main.jack         //input test
+//C:\MyProjects\intellijProjects\examples\tests\exe5Output       //output

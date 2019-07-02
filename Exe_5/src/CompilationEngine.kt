@@ -5,7 +5,7 @@ import java.util.ArrayList
 class CompilationEngine {
 
     var inputTxmlFilePath : String  = ""
-    var outputXmlFilePath : String  = ""
+    var outputVMFilePath : String  = ""
     var input: List<String> = emptyList()
     var allTokens : ArrayList<Token> = ArrayList()
     var allParser : String = ""
@@ -13,20 +13,22 @@ class CompilationEngine {
     var currentTokenIndex : Int = 0
     var twoWhiteSpaces : String = "  "
     var oneWhiteSpaces : String = " "
+    var allSymbolTable: AllSymbolTables = AllSymbolTables()
+ /**
+    var currentScope : String = ""
     var currentClassName : String = ""
     var currentSubroutineName : String = ""
     var ClassScope_SymbolTable  = arrayListOf<SymbolTable>()
     var SubroutineScope_SymbolTable  = arrayListOf<SymbolTable>()
+*/
 
 
-
-
-    constructor(inputTxmlFilePath :String, outputXmlFilePath :String    )
+    constructor(inputTxmlFilePath :String, outputVMFilePath :String    )
     {
         try
         {
             this.inputTxmlFilePath = inputTxmlFilePath
-            this.outputXmlFilePath = outputXmlFilePath
+            this.outputVMFilePath = outputVMFilePath
 
             this.input =  File(inputTxmlFilePath).readLines()
             this.input.subList(1, (this.input.count()-1)).forEach {
@@ -35,9 +37,9 @@ class CompilationEngine {
                 this.token = Token()
             }
 
-            this.CompileClass("")
+            this.CompileClass()
 
-            File(this.outputXmlFilePath).writeText(this.allParser)  //write all parser
+            File(this.outputVMFilePath).writeText(this.allParser)  //write all parser in vm file
 
         }
 
@@ -46,31 +48,6 @@ class CompilationEngine {
         }
     }
 
-    fun currentClassST_IndexOfKind(kind: Kind): Int
-    {
-        var index : Int = -1
-        this.ClassScope_SymbolTable.forEach {
-            if(it.kind.equals(kind) && it.index > index  )
-                    index = it.index        }
-        index +=1
-        return index
-    }
-
-    fun currentSubroutineST_IndexOfKind(kind: Kind): Int
-    {
-        var index : Int = -1
-        this.SubroutineScope_SymbolTable.forEach {
-            if(it.kind.equals(kind) && it.index > index  )
-                index = it.index        }
-        index +=1
-        return index
-    }
-
-    fun startSubroutine(newSubroutine: String)
-    {
-        this.SubroutineScope_SymbolTable.clear()
-        currentSubroutineName = newSubroutine
-    }
 
 
     fun fromXmlLineToToken(lineWithToken: String): Token
@@ -89,26 +66,29 @@ class CompilationEngine {
     }
 
 
-    fun CompileClass(space : String)
+    fun CompileClass()
     {
-        this.allParser+=space+"<class>\n"
-        this.allParser+=space+twoWhiteSpaces+ this.allTokens[currentTokenIndex].toXmlString()
-        this.allParser+=space+twoWhiteSpaces+ this.allTokens[currentTokenIndex+1].toXmlString()
-        this.allParser+=space+twoWhiteSpaces+ this.allTokens[currentTokenIndex+2].toXmlString()
+        this.allSymbolTable.ClassScope_SymbolTable.clear()
+        /**
+         this.allParser+="<class>\n"
+        this.allParser+=twoWhiteSpaces+ this.allTokens[currentTokenIndex].toXmlString()
+        this.allParser+=twoWhiteSpaces+ this.allTokens[currentTokenIndex+1].toXmlString()
+        this.allParser+=twoWhiteSpaces+ this.allTokens[currentTokenIndex+2].toXmlString()
         currentTokenIndex+=3
         while(this.allTokens[this.currentTokenIndex].token == "static" || this.allTokens[this.currentTokenIndex].token =="field" )
         {
-            this.CompileClassVarDec(space + twoWhiteSpaces)
+            this.CompileClassVarDec(twoWhiteSpaces)
         }
         while(this.allTokens[this.currentTokenIndex].token == "constructor" ||
             this.allTokens[this.currentTokenIndex].token =="function" || this.allTokens[this.currentTokenIndex].token =="method" )
         {
-            this.CompileSubroutine(space+twoWhiteSpaces)
+            this.CompileSubroutine(twoWhiteSpaces)
         }
 
-        this.allParser+=space+twoWhiteSpaces+ this.allTokens[currentTokenIndex].toXmlString()
+        this.allParser+=twoWhiteSpaces+ this.allTokens[currentTokenIndex].toXmlString()
         currentTokenIndex++
-        this.allParser+=space+"</class>\n"
+        this.allParser+="</class>\n"
+        */
     }
 
 
