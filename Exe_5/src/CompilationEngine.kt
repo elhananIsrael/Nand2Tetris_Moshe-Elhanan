@@ -13,6 +13,11 @@ class CompilationEngine {
     var currentTokenIndex : Int = 0
     var twoWhiteSpaces : String = "  "
     var oneWhiteSpaces : String = " "
+    var currentClassName : String = ""
+    var currentSubroutineName : String = ""
+    var ClassScope_SymbolTable  = arrayListOf<SymbolTable>()
+    var SubroutineScope_SymbolTable  = arrayListOf<SymbolTable>()
+
 
 
 
@@ -39,6 +44,32 @@ class CompilationEngine {
         catch (e: IOException) {
             println("IOException: file not found.")
         }
+    }
+
+    fun currentClassST_IndexOfKind(kind: Kind): Int
+    {
+        var index : Int = -1
+        this.ClassScope_SymbolTable.forEach {
+            if(it.kind.equals(kind) && it.index > index  )
+                    index = it.index        }
+        index +=1
+        return index
+    }
+
+    fun currentSubroutineST_IndexOfKind(kind: Kind): Int
+    {
+        var index : Int = -1
+        this.SubroutineScope_SymbolTable.forEach {
+            if(it.kind.equals(kind) && it.index > index  )
+                index = it.index        }
+        index +=1
+        return index
+    }
+
+    fun startSubroutine(newSubroutine: String)
+    {
+        this.SubroutineScope_SymbolTable.clear()
+        currentSubroutineName = newSubroutine
     }
 
 
