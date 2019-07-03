@@ -117,22 +117,26 @@ class CompilationEngine {
         this.allParser += space + "</subroutineDec>\n"
     }
 
+   //  parameterList: ( (type varName)  (',' type varName)*)?
     fun compileParameterList(space : String)
     {
         this.allParser += space + "<parameterList>\n"
 
         if(this.allTokens[this.currentTokenIndex].token != ")")
         {
-            do
+            this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() //  type
+            currentTokenIndex++
+            this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() //  varName
+            currentTokenIndex++
+            while(this.allTokens[this.currentTokenIndex].token != ")")
             {
+                this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() //  ','
+                currentTokenIndex++
                 this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() //  type
                 currentTokenIndex++
-                this.compileParameterList(space + twoWhiteSpaces)
                 this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() //  varName
                 currentTokenIndex++
             }
-            while(this.allTokens[this.currentTokenIndex].token != ")")
-
         }
 
         this.allParser += space + "</parameterList>\n"

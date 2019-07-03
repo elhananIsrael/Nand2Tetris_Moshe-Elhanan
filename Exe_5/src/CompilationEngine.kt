@@ -14,7 +14,9 @@ class CompilationEngine {
     var twoWhiteSpaces : String = "  "
     var oneWhiteSpaces : String = " "
     var allSymbolTable: AllSymbolTables = AllSymbolTables()
- /**
+    var  vmWriter: VMWriter
+
+    /**
     var currentScope : String = ""
     var currentClassName : String = ""
     var currentSubroutineName : String = ""
@@ -25,6 +27,8 @@ class CompilationEngine {
 
     constructor(inputTxmlFilePath :String, outputVMFilePath :String    )
     {
+        this.vmWriter = VMWriter(outputVMFilePath)
+
         try
         {
             this.inputTxmlFilePath = inputTxmlFilePath
@@ -66,130 +70,165 @@ class CompilationEngine {
     }
 
 
-    fun CompileClass()
-    {
-        this.allSymbolTable.ClassScope_SymbolTable.clear()
-        /**
-         this.allParser+="<class>\n"
-        this.allParser+=twoWhiteSpaces+ this.allTokens[currentTokenIndex].toXmlString()
-        this.allParser+=twoWhiteSpaces+ this.allTokens[currentTokenIndex+1].toXmlString()
-        this.allParser+=twoWhiteSpaces+ this.allTokens[currentTokenIndex+2].toXmlString()
-        currentTokenIndex+=3
-        while(this.allTokens[this.currentTokenIndex].token == "static" || this.allTokens[this.currentTokenIndex].token =="field" )
-        {
-            this.CompileClassVarDec(twoWhiteSpaces)
-        }
-        while(this.allTokens[this.currentTokenIndex].token == "constructor" ||
-            this.allTokens[this.currentTokenIndex].token =="function" || this.allTokens[this.currentTokenIndex].token =="method" )
-        {
-            this.CompileSubroutine(twoWhiteSpaces)
-        }
+//  class: 'class' className '{' classVarDec*  subroutineDec* '}'
+    fun CompileClass() {
 
-        this.allParser+=twoWhiteSpaces+ this.allTokens[currentTokenIndex].toXmlString()
-        currentTokenIndex++
-        this.allParser+="</class>\n"
-        */
+    this.allSymbolTable.ClassScope_SymbolTable.clear()
+    this.allSymbolTable.currentScope = "Class"
+    this.vmWriter.writeText("//CompileClass\n")
+
+   // this.allParser+="<class>\n"
+    //this.allParser+=twoWhiteSpaces+ this.allTokens[currentTokenIndex].toXmlString()  // 'class'
+    var className=this.allTokens[currentTokenIndex+1].token  // className
+    this.allSymbolTable.currentClassName = className
+   // this.allParser+=twoWhiteSpaces+ this.allTokens[currentTokenIndex+2].toXmlString()  //  '{'
+    currentTokenIndex+=3
+    while(this.allTokens[this.currentTokenIndex].token == "static" || this.allTokens[this.currentTokenIndex].token =="field" )
+    {
+    this.CompileClassVarDec()
+    }
+    while(this.allTokens[this.currentTokenIndex].token == "constructor" ||
+    this.allTokens[this.currentTokenIndex].token =="function" || this.allTokens[this.currentTokenIndex].token =="method" )
+    {
+    this.CompileSubroutineDec()
     }
 
+  //  this.allParser+=twoWhiteSpaces+ this.allTokens[currentTokenIndex].toXmlString()  // '}'
+    currentTokenIndex++
+   // this.allParser+="</class>\n"
 
-    fun CompileClassVarDec(space : String)
+    }
+
+//  classVarDec: ('static' | 'field' ) type varName (',' varName)*  ';'
+    fun CompileClassVarDec()
     {
-        this.allParser += space + "<classVarDec>\n"
-        this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString()
-        this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex + 1].toXmlString()
-        this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex + 2].toXmlString()
+
+        this.vmWriter.writeText("//CompileClassVarDec\n")
+
+        var kind = this.allTokens[currentTokenIndex].token  // ('static' | 'field' )
+        var type = this.allTokens[currentTokenIndex+1].token  //  type
+        var varName = this.allTokens[currentTokenIndex+2].token  //  varName
+
+        when (kind)
+        {
+            "static" -> this.allSymbolTable.define(varName, type, Kind.STATIC)
+            "field" -> this.allSymbolTable.define(varName, type, Kind.FIELD)
+        }
         currentTokenIndex += 3
-        while (this.allTokens[this.currentTokenIndex].token != ";")
+         while (this.allTokens[this.currentTokenIndex].token != ";")   //  (',' varName)*
         {
-            this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex + 2].toXmlString()
+           // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex + 2].toXmlString()  //  ','
             currentTokenIndex++
-            this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex + 2].toXmlString()
+            var varName = this.allTokens[currentTokenIndex].token  //  varName
+
+            when (kind)
+            {
+                "static" -> this.allSymbolTable.define(varName, type, Kind.STATIC)
+                "field" -> this.allSymbolTable.define(varName, type, Kind.FIELD)
+            }
             currentTokenIndex++
         }
-        this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString()
-        this.allParser += space + "</classVarDec>\n"
+       // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString()  //  ';'
+
+     //   this.allParser += space + "</classVarDec>\n"
     }
 
-    fun CompileSubroutine(space : String)
+    //  subroutineDec: ('constructor' | 'function' | 'method')  ('void' | type) subroutineName  '(' parameterList ')' subroutineBody
+    fun CompileSubroutineDec()
     {
-        this.allParser += space + "<subroutineDec>\n"
-        this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() //('constructor' | 'function' | 'method')
+        this.vmWriter.writeText("//CompileSubroutineDec\n")
+
+        var subroutineType= this.allTokens[currentTokenIndex].token //('constructor' | 'function' | 'method')
         currentTokenIndex++
-        this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ('void' | type)
+        var subroutineReturnType= this.allTokens[currentTokenIndex].token // ('void' | type)
         currentTokenIndex++
-        this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // subroutineName
+        var subroutineName= this.allTokens[currentTokenIndex].token // subroutineName
         currentTokenIndex++
-        this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() //  '('
+    //  this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() //  '('
         currentTokenIndex++
-        this.compileParameterList(space + twoWhiteSpaces)
-        this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() //  ')'
+        this.allSymbolTable.startSubroutine(subroutineName, subroutineType)
+        this.compileParameterList()
+     //   this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() //  ')'
         currentTokenIndex++
-        this.compileSubroutineBody(space + twoWhiteSpaces)
-        this.allParser += space + "</subroutineDec>\n"
+        this.compileSubroutineBody()
     }
 
-    fun compileParameterList(space : String)
+
+    //  parameterList: ( (type varName)  (',' type varName)*)?
+    fun compileParameterList()
     {
-        this.allParser += space + "<parameterList>\n"
+        this.vmWriter.writeText("//compileParameterList\n")
 
         if(this.allTokens[this.currentTokenIndex].token != ")")
         {
-            do
-            {
-                this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() //  type
-                currentTokenIndex++
-                this.compileParameterList(space + twoWhiteSpaces)
-                this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() //  varName
-                currentTokenIndex++
-            }
+            var type= this.allTokens[currentTokenIndex].token //  type
+            currentTokenIndex++
+            var varName= this.allTokens[currentTokenIndex].token //  varName
+            currentTokenIndex++
+            this.allSymbolTable.define(varName, type, Kind.ARG)
+
             while(this.allTokens[this.currentTokenIndex].token != ")")
-
+            {
+               // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() //  ','
+                currentTokenIndex++
+                var type= this.allTokens[currentTokenIndex].token //  type
+                currentTokenIndex++
+                var varName= this.allTokens[currentTokenIndex].token //  varName
+                currentTokenIndex++
+                this.allSymbolTable.define(varName, type, Kind.ARG)
+            }
         }
-
-        this.allParser += space + "</parameterList>\n"
     }
 
-    fun compileSubroutineBody(space : String)
+
+    //  subroutineBody: '{' varDec* statements '}'
+    fun compileSubroutineBody()
     {
-        this.allParser += space + "<subroutineBody>\n"
-        this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '{'
+        this.vmWriter.writeText("//compileSubroutineBody\n")
+        var nLocals: Int = 0
+// אחרי שנדע כמה משתנים מקומיים יש לפונקציה הזאת אז צריך להצהיר על הפונקציה.
+
+        //  this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '{'
         currentTokenIndex++
         while (this.allTokens[this.currentTokenIndex].token == "var")
         {
-            this.compileVarDec(space + twoWhiteSpaces)
+            this.compileVarDec()
+            nLocals++
         }
-        this.compileStatements(space + twoWhiteSpaces)
-        this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '}'
+        this.vmWriter.writeFunction(this.allSymbolTable.currentSubroutineName, nLocals)
+        this.compileStatements()
+        //  this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '}'
         currentTokenIndex++
-        this.allParser += space + "</subroutineBody>\n"
     }
 
-    fun compileVarDec(space : String)
-    {
-        this.allParser += space + "<varDec>\n"
 
-        this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // 'var'
+    // varDec: 'var' type varName (',' varName)* ';'
+    fun compileVarDec()
+    {
+        this.vmWriter.writeText("//compileVarDec\n")
+
+        //this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // 'var'
         currentTokenIndex++
-        this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // type
+        var type= this.allTokens[currentTokenIndex].token // type
         currentTokenIndex++
-        this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // varName
+        var varName= this.allTokens[currentTokenIndex].token // varName
         currentTokenIndex++
+        this.allSymbolTable.define(varName, type, Kind.VAR)
         while (this.allTokens[this.currentTokenIndex].token != ";")
         {
-            this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ','
+            //this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ','
             currentTokenIndex++
-            this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // varName
+            var varName= this.allTokens[currentTokenIndex].token // varName
             currentTokenIndex++
+            this.allSymbolTable.define(varName, type, Kind.VAR)
         }
-        this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ';'
+       // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ';'
         currentTokenIndex++
-
-        this.allParser += space + "</varDec>\n"
     }
 
-    fun compileStatements(space : String)
+    fun compileStatements()
     {
-        this.allParser += space + "<statements>\n"
+       /** this.allParser += space + "<statements>\n"
 
         while (this.allTokens[this.currentTokenIndex].token == "let" || this.allTokens[this.currentTokenIndex].token == "if" ||
             this.allTokens[this.currentTokenIndex].token == "while" || this.allTokens[this.currentTokenIndex].token == "do" ||
@@ -208,11 +247,12 @@ class CompilationEngine {
         }
 
         this.allParser += space + "</statements>\n"
+       */
     }
 
-    fun compileDo(space : String)
+    fun compileDo()
     {
-        this.allParser += space + "<doStatement>\n"
+        /** this.allParser += space + "<doStatement>\n"
 
         this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // 'do'
         currentTokenIndex++
@@ -221,12 +261,13 @@ class CompilationEngine {
         currentTokenIndex++
 
         this.allParser += space + "</doStatement>\n"
+        */
     }
 
 
-    fun compileLet(space : String)
+    fun compileLet()
     {
-        this.allParser += space + "<letStatement>\n"
+        /** this.allParser += space + "<letStatement>\n"
 
         this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // 'let'
         currentTokenIndex++
@@ -247,11 +288,12 @@ class CompilationEngine {
         currentTokenIndex++
 
         this.allParser += space + "</letStatement>\n"
+        */
     }
 
-    fun compileWhile(space : String)
+    fun compileWhile()
     {
-        this.allParser += space + "<whileStatement>\n"
+       /** this.allParser += space + "<whileStatement>\n"
 
         this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // 'while'
         currentTokenIndex++
@@ -267,11 +309,12 @@ class CompilationEngine {
         currentTokenIndex++
 
         this.allParser += space + "</whileStatement>\n"
+       */
     }
 
-    fun compileReturn(space : String)
+    fun compileReturn()
     {
-        this.allParser += space + "<returnStatement>\n"
+        /** this.allParser += space + "<returnStatement>\n"
 
         this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // 'return'
         currentTokenIndex++
@@ -281,11 +324,12 @@ class CompilationEngine {
         currentTokenIndex++
 
         this.allParser += space + "</returnStatement>\n"
+        */
     }
 
-    fun compileIf(space : String)
+    fun compileIf()
     {
-        this.allParser += space + "<ifStatement>\n"
+        /** this.allParser += space + "<ifStatement>\n"
 
         this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // 'if'
         currentTokenIndex++
@@ -311,11 +355,12 @@ class CompilationEngine {
         }
 
         this.allParser += space + "</ifStatement>\n"
+        */
     }
 
-    fun CompileExpression(space : String)
+    fun CompileExpression()
     {
-        this.allParser += space + "<expression>\n"
+        /** this.allParser += space + "<expression>\n"
 
         this.CompileTerm(space + twoWhiteSpaces)
         while (this.allTokens[this.currentTokenIndex].token != "]" && this.allTokens[this.currentTokenIndex].token != ";" &&
@@ -327,11 +372,12 @@ class CompilationEngine {
         }
 
         this.allParser += space + "</expression>\n"
+        */
     }
 
-    fun CompileTerm(space : String)
+    fun CompileTerm()
     {
-        this.allParser += space + "<term>\n"
+        /** this.allParser += space + "<term>\n"
 
         if(this.allTokens[this.currentTokenIndex].token == "-" || this.allTokens[this.currentTokenIndex].token == "~" )
         {
@@ -367,11 +413,12 @@ class CompilationEngine {
         }
 
         this.allParser += space + "</term>\n"
+        */
     }
 
-    fun CompileExpressionList(space : String)
+    fun CompileExpressionList()
     {
-        this.allParser += space + "<expressionList>\n"
+        /** this.allParser += space + "<expressionList>\n"
         if(this.allTokens[this.currentTokenIndex].token != ")")
         {
             this.CompileExpression(space + twoWhiteSpaces)
@@ -383,12 +430,13 @@ class CompilationEngine {
             }
         }
         this.allParser += space + "</expressionList>\n"
+        */
     }
 
 
-    fun compileSubroutineCall(space : String)
+    fun compileSubroutineCall()
     {
-        if(this.allTokens[(this.currentTokenIndex+1)].token == "(")
+       /** if(this.allTokens[(this.currentTokenIndex+1)].token == "(")
         {
             this.allParser += space + oneWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // subroutineName
             currentTokenIndex++
@@ -412,6 +460,7 @@ class CompilationEngine {
             this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ')'
             currentTokenIndex++
         }
+        */
     }
 
 

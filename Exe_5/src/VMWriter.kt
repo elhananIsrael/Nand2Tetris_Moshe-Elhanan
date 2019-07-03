@@ -1,5 +1,4 @@
 import java.io.File
-import java.io.IOException
 
 class VMWriter {
 
@@ -8,25 +7,14 @@ class VMWriter {
 
     constructor(outputVMFilePath :String)
     {
-       // try
-      //  {
-
         myOutputVMFile = File(outputVMFilePath)
-
-
-
-
-
-         //   File(this.outputVMFilePath).writeText(this.allParser)  //write all parser in vm file
-
-      //  }
-
-     //   catch (e: IOException) {
-     //       println("IOException: file not found.")
-     //   }
-
     }
 
+
+    fun writeText(text: String)
+    {
+        this.myOutputVMFile.appendText(text)
+    }
 
     fun writePush(segment: Segment, index: Int)
     {
