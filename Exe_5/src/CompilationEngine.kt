@@ -271,6 +271,8 @@ class CompilationEngine {
        // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // 'do'
         currentTokenIndex++
         this.compileSubroutineCall()
+
+        this.vmWriter.writePop(Segment.TEMP, 0) // pop temp 0 : because the function return something so we put it on temp var out from
        // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ';'
         currentTokenIndex++
     }
@@ -280,34 +282,42 @@ class CompilationEngine {
     fun compileLet()
     {
         this.vmWriter.writeText("//compileLet\n")
-/**
+
        // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // 'let'
         currentTokenIndex++
         var varName = this.allTokens[currentTokenIndex].token // varName
         currentTokenIndex++
-        if(this.allTokens[this.currentTokenIndex].token == "[")
+          if(this.allTokens[this.currentTokenIndex].token == "[")
         {
            // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '['
             currentTokenIndex++
+
             this.CompileExpression()
+            vmWriter.writePush(this.allSymbolTable.segmentOfNormalVarName(varName), this.allSymbolTable.indexOf(varName))
+            vmWriter.writeArithmetic(Command.ADD)  // this 3 lines
+
             // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ']'
             currentTokenIndex++
             // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '='
             currentTokenIndex++
+
             this.CompileExpression()
+            vmWriter.writePop(Segment.TEMP, 0)
+            vmWriter.writePop(Segment.POINTER, 1)
+            vmWriter.writePush(Segment.TEMP, 0)
+            vmWriter.writePop(Segment.THAT, 0)
+
             // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ';'
             currentTokenIndex++
         }
         else {
-            // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '='
-            currentTokenIndex++
-            this.CompileExpression()
-            // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ';'
-            currentTokenIndex++
-
+              // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '='
+              currentTokenIndex++
+              this.CompileExpression()
+               // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ';'
+              currentTokenIndex++
+              vmWriter.writePop(this.allSymbolTable.segmentOfNormalVarName(varName), this.allSymbolTable.indexOf(varName))
         }
-
-       */
     }
 
     fun compileWhile()

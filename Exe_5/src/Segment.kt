@@ -6,5 +6,6 @@ enum class Segment {
     THIS,
     THAT,
     POINTER,
-    TEMP
+    TEMP,
+    UNKNOWN
 }

@@ -85,6 +85,9 @@ class AllSymbolTables {
                 this.SubroutineScope_SymbolTable.forEach {
                     if(it.name.equals(name))
                         return it.kind       }
+                this.SubroutineScope_SymbolTable.forEach {
+                    if(it.name.equals(name) && !(this.currentSubroutineType.equals("function") && it.kind.equals(Kind.FIELD)))
+                        return it.kind       }
             }
             "Class" -> {
                 this.ClassScope_SymbolTable.forEach {
@@ -104,6 +107,9 @@ class AllSymbolTables {
                 this.SubroutineScope_SymbolTable.forEach {
                     if(it.name.equals(name))
                         return it.type       }
+                this.SubroutineScope_SymbolTable.forEach {
+                    if(it.name.equals(name) && !(this.currentSubroutineType.equals("function") && it.kind.equals(Kind.FIELD)))
+                        return it.type       }
             }
             "Class" -> {
                 this.ClassScope_SymbolTable.forEach {
@@ -122,6 +128,9 @@ class AllSymbolTables {
                 this.SubroutineScope_SymbolTable.forEach {
                     if(it.name.equals(name))
                         return it.index       }
+                this.SubroutineScope_SymbolTable.forEach {
+                    if(it.name.equals(name) && !(this.currentSubroutineType.equals("function") && it.kind.equals(Kind.FIELD)))
+                        return it.index       }
             }
             "Class" -> {
                 this.ClassScope_SymbolTable.forEach {
@@ -132,23 +141,19 @@ class AllSymbolTables {
         return -1
     }
 
-    /**
-     fun segmentOfVarName(varName: String): Segment {
-       var mySegment = Segment.TEMP
-        when (this.currentScope)
+
+     fun segmentOfNormalVarName(varName: String): Segment {
+
+       var kind = this.kindOf(varName)
+        when (kind)
         {
-            "Subroutine" -> {
-                this.SubroutineScope_SymbolTable.forEach {
-                    if(it.kind.equals(kind))
-                        count++       }
-            }
-            "Class" -> {
-                this.SubroutineScope_SymbolTable.forEach {
-                    if (it.kind.equals(kind))
-                        count++       }
-            }
+            Kind.FIELD -> Segment.THIS
+            Kind.STATIC -> Segment.STATIC
+            Kind.VAR -> Segment.LOCAL
+            Kind.ARG -> Segment.ARG
         }
+         return Segment.UNKNOWN
     }
-    */
+
 
 }
