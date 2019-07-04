@@ -14,7 +14,10 @@ class CompilationEngine {
     var twoWhiteSpaces : String = "  "
     var oneWhiteSpaces : String = " "
     var allSymbolTable: AllSymbolTables = AllSymbolTables()
-    var  vmWriter: VMWriter
+    var vmWriter: VMWriter
+    var whileLabelIndex:Int = 0
+    var ifLabelIndex:Int = 0
+
 
     /**
     var currentScope : String = ""
@@ -70,7 +73,7 @@ class CompilationEngine {
     }
 
 
-//  class: 'class' className '{' classVarDec*  subroutineDec* '}'
+     //  class: 'class' className '{' classVarDec*  subroutineDec* '}'
     fun CompileClass() {
 
     this.allSymbolTable.ClassScope_SymbolTable.clear()
@@ -99,7 +102,7 @@ class CompilationEngine {
 
     }
 
-//  classVarDec: ('static' | 'field' ) type varName (',' varName)*  ';'
+     //  classVarDec: ('static' | 'field' ) type varName (',' varName)*  ';'
     fun CompileClassVarDec()
     {
 
@@ -146,7 +149,7 @@ class CompilationEngine {
         currentTokenIndex++
     //  this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() //  '('
         currentTokenIndex++
-        this.allSymbolTable.startSubroutine(subroutineName, subroutineType)
+        this.allSymbolTable.startSubroutine(subroutineName, subroutineType, subroutineReturnType)
         this.compileParameterList()
      //   this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() //  ')'
         currentTokenIndex++
@@ -287,25 +290,25 @@ class CompilationEngine {
         currentTokenIndex++
         var varName = this.allTokens[currentTokenIndex].token // varName
         currentTokenIndex++
-          if(this.allTokens[this.currentTokenIndex].token == "[")
+          if(this.allTokens[this.currentTokenIndex].token == "[")  // varName[expression1]=expression2
         {
            // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '['
             currentTokenIndex++
 
-            this.CompileExpression()
+            this.CompileExpression() // expression1
             vmWriter.writePush(this.allSymbolTable.segmentOfNormalVarName(varName), this.allSymbolTable.indexOf(varName))
-            vmWriter.writeArithmetic(Command.ADD)  // this 3 lines
+            vmWriter.writeArithmetic(Command.ADD)  //  *(expression1+varName)= top stack value = RAM address of varName[expression1]
 
             // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ']'
             currentTokenIndex++
             // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '='
             currentTokenIndex++
 
-            this.CompileExpression()
-            vmWriter.writePop(Segment.TEMP, 0)
-            vmWriter.writePop(Segment.POINTER, 1)
-            vmWriter.writePush(Segment.TEMP, 0)
-            vmWriter.writePop(Segment.THAT, 0)
+            this.CompileExpression()  //expression2
+            vmWriter.writePop(Segment.TEMP, 0)   // temp 0 =the value of expression2
+            vmWriter.writePop(Segment.POINTER, 1) // pointer 1 (that 0) = point to the RAM address of varName[expression1]
+            vmWriter.writePush(Segment.TEMP, 0)  // top stack value = expression2
+            vmWriter.writePop(Segment.THAT, 0)  // that 0 =the value of expression2
 
             // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ';'
             currentTokenIndex++
@@ -320,101 +323,144 @@ class CompilationEngine {
         }
     }
 
+    // whileStatement: 'while' '(' expression ')' '{' statements '}'
     fun compileWhile()
     {
-       /** this.allParser += space + "<whileStatement>\n"
+        this.vmWriter.writeText("//compileWhile\n")
 
-        this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // 'while'
+     //   this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // 'while'
         currentTokenIndex++
-        this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '('
+     //   this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '('
         currentTokenIndex++
-        this.CompileExpression(space + twoWhiteSpaces)
-        this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ')'
-        currentTokenIndex++
-        this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '{'
-        currentTokenIndex++
-        this.compileStatements(space + twoWhiteSpaces)
-        this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '}'
-        currentTokenIndex++
+        var label_1 = "whileLabel${this.whileLabelIndex}"
+        this.whileLabelIndex++
+        var label_2 = "whileLabel${this.whileLabelIndex}"
+        this.whileLabelIndex++
 
-        this.allParser += space + "</whileStatement>\n"
-       */
+        this.vmWriter.writeLabel(label_1)  //label L1
+        this.CompileExpression()   // compiled (expression)
+        this.vmWriter.writeArithmetic(Command.NOT)  // not
+        this.vmWriter.writeIf(label_2) // if-goto L2
+
+       // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ')'
+        currentTokenIndex++
+      //  this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '{'
+        currentTokenIndex++
+        this.compileStatements()  // compiled (statements)
+        this.vmWriter.writeGoto(label_1)  // goto L1
+        this.vmWriter.writeLabel(label_2)  // label L2
+
+        //   this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '}'
+        currentTokenIndex++
     }
 
+    // ReturnStatement 'return'  expression? ';'
     fun compileReturn()
     {
-        /** this.allParser += space + "<returnStatement>\n"
+        this.vmWriter.writeText("//compileReturn\n")
 
-        this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // 'return'
+        //this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // 'return'
         currentTokenIndex++
         if(this.allTokens[this.currentTokenIndex].token != ";")
-            this.CompileExpression(space + twoWhiteSpaces)
-        this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ';'
-        currentTokenIndex++
-
-        this.allParser += space + "</returnStatement>\n"
-        */
+        {
+            this.CompileExpression()
+            // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ';'
+            currentTokenIndex++
+            this.vmWriter.writeReturn()
+        }
+        else {
+            // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ';'
+            currentTokenIndex++
+            this.vmWriter.writePush(Segment.CONST, 0)
+            this.vmWriter.writeReturn()
+        }
     }
 
+
+    //  ifStatement: 'if' '(' expression ')' '{' statements '}'  ( 'else' '{' statements '}' )?
     fun compileIf()
     {
-        /** this.allParser += space + "<ifStatement>\n"
+        this.vmWriter.writeText("//compileIf\n")
 
-        this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // 'if'
+      //  this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // 'if'
         currentTokenIndex++
-        this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '('
+      //  this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '('
         currentTokenIndex++
-        this.CompileExpression(space + twoWhiteSpaces)
-        this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ')'
+        var label_1 = "whileLabel${this.whileLabelIndex}"
+        this.whileLabelIndex++
+
+        this.CompileExpression()  //   compiled (expression)
+        this.vmWriter.writeArithmetic(Command.NOT)  // not
+
+        //   this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ')'
         currentTokenIndex++
-        this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '{'
+     //   this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '{'
         currentTokenIndex++
-        this.compileStatements(space + twoWhiteSpaces)
-        this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '}'
+
+        this.vmWriter.writeIf(label_1) // if-goto L1
+        this.compileStatements()  //  compiled (statements1)
+
+      //  this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '}'
         currentTokenIndex++
-        if(this.allTokens[this.currentTokenIndex].token == "else")
+        if(this.allTokens[this.currentTokenIndex].token == "else") // have "else"
         {
-            this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // 'else'
+       //     this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // 'else'
             currentTokenIndex++
-            this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '{'
+       //     this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '{'
             currentTokenIndex++
-            this.compileStatements(space + twoWhiteSpaces)
-            this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '}'
+            var label_2 = "whileLabel${this.whileLabelIndex}"
+            this.whileLabelIndex++
+
+            this.vmWriter.writeGoto(label_2)  // goto L2
+            this.vmWriter.writeLabel(label_1)  // label L1
+            this.compileStatements()  // compiled (statements2)
+            this.vmWriter.writeLabel(label_1)  //label L2
+
+         //   this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '}'
             currentTokenIndex++
         }
-
-        this.allParser += space + "</ifStatement>\n"
-        */
+        else { //not have "else"
+            this.vmWriter.writeLabel(label_1)  //label L1
+        }
     }
 
+
+    // expression: term (op term)*
     fun CompileExpression()
     {
-        /** this.allParser += space + "<expression>\n"
+        this.vmWriter.writeText("//CompileExpression\n")
 
-        this.CompileTerm(space + twoWhiteSpaces)
+        this.CompileTerm()
         while (this.allTokens[this.currentTokenIndex].token != "]" && this.allTokens[this.currentTokenIndex].token != ";" &&
             this.allTokens[this.currentTokenIndex].token != ")" )
         {
-            this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // op
+            var op = this.allTokens[currentTokenIndex].token // op
             currentTokenIndex++
-            this.CompileTerm(space + twoWhiteSpaces)
+            this.CompileTerm()
+            this.vmWriter.writeArithmeticFromStringOp(op)
         }
 
-        this.allParser += space + "</expression>\n"
-        */
     }
 
+
+     //  term: integerConstant | stringConstant | keywordConstant | varName |  varName '[' expression ']' |
+     //  subroutineCall  | '(' expression ')' | unaryOp term
     fun CompileTerm()
     {
-        /** this.allParser += space + "<term>\n"
+        this.vmWriter.writeText("//CompileTerm\n")
 
-        if(this.allTokens[this.currentTokenIndex].token == "-" || this.allTokens[this.currentTokenIndex].token == "~" )
+        if(this.allTokens[this.currentTokenIndex].token == "-" || this.allTokens[this.currentTokenIndex].token == "~" )  //  unaryOp term
         {
-            this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // unaryOp
+            var unaryOp= this.allTokens[currentTokenIndex].token // unaryOp
             currentTokenIndex++
-            this.CompileTerm(space + twoWhiteSpaces)
+            this.CompileTerm()
+            when (unaryOp)
+            {
+                "-"  -> this.vmWriter.writeArithmetic(Command.NEG)
+                "~" -> this.vmWriter.writeArithmetic(Command.NOT)
+            }
         }
-        else if(this.allTokens[this.currentTokenIndex].token == "(")
+        /**else if(this.allTokens[this.currentTokenIndex].token == "(")  // '(' expression ')'
         {
             this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '('
             currentTokenIndex++
@@ -422,16 +468,14 @@ class CompilationEngine {
             this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ')'
             currentTokenIndex++
         }
-        else if(this.allTokens[(this.currentTokenIndex+1)].token == "(" || this.allTokens[(this.currentTokenIndex+1)].token == ".")
+        else if(this.allTokens[(this.currentTokenIndex+1)].token == "(" || this.allTokens[(this.currentTokenIndex+1)].token == ".")  // subroutineCall
             this.compileSubroutineCall(space )
-        else
+        else  // integerConstant | stringConstant | keywordConstant | varName |  varName '[' expression ']'
         {
             this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // integerConstant|stringConstant|keywordConstant|varName
             currentTokenIndex++
-            if(this.allTokens[(this.currentTokenIndex)].token == "[")
+            if(this.allTokens[(this.currentTokenIndex)].token == "[")  // '[' expression ']'
             {
-                // this.allParser += space + uniqSpace + this.allTokens[currentTokenIndex].toXmlString() // varName
-                // currentTokenIndex++
                 this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '['
                 currentTokenIndex++
                 this.CompileExpression(space + twoWhiteSpaces)
@@ -441,7 +485,6 @@ class CompilationEngine {
 
         }
 
-        this.allParser += space + "</term>\n"
         */
     }
 

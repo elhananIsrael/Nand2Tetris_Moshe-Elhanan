@@ -3,6 +3,7 @@ class AllSymbolTables {
     var currentClassName : String = ""
     var currentSubroutineName : String = ""
     var currentSubroutineType : String = ""
+    var currentSubroutineReturnType : String = ""
     var ClassScope_SymbolTable  = arrayListOf<SymbolTable>()
     var SubroutineScope_SymbolTable  = arrayListOf<SymbolTable>()
 
@@ -27,12 +28,13 @@ class AllSymbolTables {
         return index
     }
 
-    fun startSubroutine(newSubroutineName: String, newSubroutineType: String)
+    fun startSubroutine(newSubroutineName: String, newSubroutineType: String, newSubroutineReturnType: String)
     {
         this.SubroutineScope_SymbolTable.clear()
         currentScope= "Subroutine"
         this.currentSubroutineName = newSubroutineName
         this.currentSubroutineType = newSubroutineType
+        this.currentSubroutineReturnType = newSubroutineReturnType
         if(newSubroutineType.equals("method"))
             this.define("this", this.currentClassName, Kind.ARG )
     }

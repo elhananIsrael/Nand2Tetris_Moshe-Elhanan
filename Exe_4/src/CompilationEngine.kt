@@ -348,8 +348,6 @@ class CompilationEngine {
             currentTokenIndex++
             if(this.allTokens[(this.currentTokenIndex)].token == "[")
             {
-                // this.allParser += space + uniqSpace + this.allTokens[currentTokenIndex].toXmlString() // varName
-                // currentTokenIndex++
                 this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '['
                 currentTokenIndex++
                 this.CompileExpression(space + twoWhiteSpaces)

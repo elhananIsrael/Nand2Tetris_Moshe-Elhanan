@@ -50,7 +50,7 @@ class VMWriter {
     {
         when (command)
         {
-            Command.ADD -> this.myOutputVMFile.appendText("add\n")
+            Command.ADD  -> this.myOutputVMFile.appendText("add\n")
             Command.SUB -> this.myOutputVMFile.appendText("sub\n")
             Command.NEG -> this.myOutputVMFile.appendText("neg\n")
             Command.EQ -> this.myOutputVMFile.appendText("eq\n")
@@ -58,7 +58,22 @@ class VMWriter {
             Command.LT -> this.myOutputVMFile.appendText("lt\n")
             Command.AND -> this.myOutputVMFile.appendText("and\n")
             Command.OR -> this.myOutputVMFile.appendText("or\n")
-            Command.NOT -> this.myOutputVMFile.appendText("or\n")
+            Command.NOT -> this.myOutputVMFile.appendText("not\n")
+        }
+    }
+
+    fun writeArithmeticFromStringOp(op: String) {
+        when (op)
+        {
+            "+"  -> this.myOutputVMFile.appendText("add\n")
+            "-" -> this.myOutputVMFile.appendText("sub\n")
+            "*" -> this.myOutputVMFile.appendText("call Math.multiply 2\n")
+            "/" -> this.myOutputVMFile.appendText("call Math.divide 2\n")
+            "&amp;" -> this.myOutputVMFile.appendText("and\n")
+            "|" -> this.myOutputVMFile.appendText("or\n")
+            "&lt;" -> this.myOutputVMFile.appendText("lt\n")
+            "&gt;" -> this.myOutputVMFile.appendText("gt\n")
+            "=" -> this.myOutputVMFile.appendText("eq\n")
         }
     }
 
