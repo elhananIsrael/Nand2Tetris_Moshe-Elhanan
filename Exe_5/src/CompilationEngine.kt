@@ -46,7 +46,7 @@ class CompilationEngine {
 
             this.CompileClass()
 
-            File(this.outputVMFilePath).writeText(this.allParser)  //write all parser in vm file
+            //File(this.outputVMFilePath).writeText(this.allParser)  //write all parser in vm file
 
         }
 

@@ -247,8 +247,9 @@ class JackTokenizer {
             }
 
             allTokXml += "</tokens>"
-
-            File(outputFilePath).writeText(allTokXml) // write Txml file
+//var tokinazerFile: File=File(outputFilePath)
+           // tokinazerFile.writeText(allTokXml)
+           File(outputFilePath).writeText(allTokXml)// write Txml file
         }
         catch (e:IOException) {
             println("IOException: error.")

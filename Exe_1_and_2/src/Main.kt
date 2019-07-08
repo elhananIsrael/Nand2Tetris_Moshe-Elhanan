@@ -12,7 +12,7 @@ fun main (args: Array<String>) {
 
  //   println(PATH_VM_FILE)
   //  var pathToFile = PATH_TO_WORKING_DIR + NAME_OF_FILE
-    var pathToFile = "C:\\MyProjects\\intellijProjects\\examples\\tests\\testing_exe_1_and_2\\FunctionCalls\\SimpleFunction\\" + NAME_OF_FILE
+    var pathToFile = "tests\\exe_1_and_2\\more_input\\FunctionCalls\\SimpleFunction\\" + NAME_OF_FILE
 
     var pathToVMFile = pathToFile + EXT_OF_VM_FILE
     var pathToASMFile = pathToFile + EXT_OF_ASM_FILE

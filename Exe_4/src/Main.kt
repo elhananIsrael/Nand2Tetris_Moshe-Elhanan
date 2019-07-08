@@ -40,5 +40,5 @@ catch (e:IOException) {
 }
 }
 
-//C:\MyProjects\intellijProjects\examples\tests\exe4Test         //input test
-//C:\MyProjects\intellijProjects\examples\tests\exe4Output       //output
+// tests\exe_4\input         //input test
+// tests\exe_4\output      //output
