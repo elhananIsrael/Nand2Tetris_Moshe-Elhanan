@@ -107,6 +107,19 @@ class VMWriter {
         this.myOutputVMFile.appendText("return\n")
     }
 
+    fun writePushString(myString: String)
+    {
+
+        this.writePush(Segment.CONST, myString.length)  //lenght of string
+        this.writeCall("String.new", 1)
+        for (char in myString) {
+            this.writePush(Segment.CONST, char.toInt())
+            this.writeCall("String.appendChar", 2)
+
+        }
+      //  this.writeCall("Output.printString", 1)
+       // this.writePop(Segment.TEMP, 0)
+    }
 
   /**  fun close()    {
     }*/

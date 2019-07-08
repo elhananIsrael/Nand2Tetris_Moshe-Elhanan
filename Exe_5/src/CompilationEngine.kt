@@ -313,7 +313,7 @@ class CompilationEngine {
             // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ';'
             currentTokenIndex++
         }
-        else {
+        else {  // varName '=' expression ';'
               // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '='
               currentTokenIndex++
               this.CompileExpression()
@@ -460,49 +460,83 @@ class CompilationEngine {
                 "~" -> this.vmWriter.writeArithmetic(Command.NOT)
             }
         }
-        /**else if(this.allTokens[this.currentTokenIndex].token == "(")  // '(' expression ')'
+       else if(this.allTokens[this.currentTokenIndex].token == "(")  // '(' expression ')'
         {
-            this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '('
+            //this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '('
             currentTokenIndex++
-            this.CompileExpression(space + twoWhiteSpaces)
-            this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ')'
+            this.CompileExpression()
+           // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ')'
             currentTokenIndex++
         }
         else if(this.allTokens[(this.currentTokenIndex+1)].token == "(" || this.allTokens[(this.currentTokenIndex+1)].token == ".")  // subroutineCall
-            this.compileSubroutineCall(space )
-        else  // integerConstant | stringConstant | keywordConstant | varName |  varName '[' expression ']'
+            this.compileSubroutineCall()
+          else  // integerConstant | stringConstant | keywordConstant | varName |  varName '[' expression ']'
         {
-            this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // integerConstant|stringConstant|keywordConstant|varName
+            var token = this.allTokens[currentTokenIndex] // integerConstant|stringConstant|keywordConstant|varName
             currentTokenIndex++
-            if(this.allTokens[(this.currentTokenIndex)].token == "[")  // '[' expression ']'
+            if(this.allTokens[(this.currentTokenIndex)].token == "[")  // token = varName and next tokens='[' expression ']'
             {
-                this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '['
+                //this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '['
                 currentTokenIndex++
-                this.CompileExpression(space + twoWhiteSpaces)
-                this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ']'
+                vmWriter.writePush(this.allSymbolTable.segmentOfNormalVarName(token.token), this.allSymbolTable.indexOf(token.token))
+                this.CompileExpression()
+                vmWriter.writeArithmetic(Command.ADD)  //  *(expression+varName)= top stack value = RAM address of varName[expression1]
+                vmWriter.writePop(Segment.POINTER, 1) // pointer 1 (that 0) = point to the RAM address of varName[expression1]
+                vmWriter.writePop(Segment.THAT, 0)  // that 0 =the value of expression2
+
+                // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ']'
                 currentTokenIndex++
+
+            }
+            else // //token = integerConstant | stringConstant | keywordConstant | varName
+            {
+                when(token.type)
+                {
+                    "integerConstant" -> {this.vmWriter.writePush(Segment.CONST, token.type.toInt() )}
+                    "stringConstant" -> {this.vmWriter.writePushString(token.token)}
+                    "keyword" -> {
+                        // 'true' | 'false' | 'null' | 'this'
+                        when (token.token)
+                        {
+                            "true"  -> {
+                                this.vmWriter.writePush(Segment.CONST, 1)
+                                this.vmWriter.writeArithmetic(Command.NEG)
+                            }
+                            "false" -> {this.vmWriter.writePush(Segment.CONST, 0)}
+                            "null"  -> {this.vmWriter.writePush(Segment.CONST, 0)}
+                            "this"  -> {this.vmWriter.writePush(Segment.POINTER, 0)}
+                        }
+                    }
+                    "identifier" ->
+                    {
+                        vmWriter.writePush(this.allSymbolTable.segmentOfNormalVarName(token.token), this.allSymbolTable.indexOf(token.token))
+                    }
+                }
             }
 
         }
 
-        */
+
     }
 
+
+// expressionList: (expression (',' expression)* )?
     fun CompileExpressionList()
     {
-        /** this.allParser += space + "<expressionList>\n"
+        this.vmWriter.writeText("//CompileExpressionList\n")
+
+
         if(this.allTokens[this.currentTokenIndex].token != ")")
         {
-            this.CompileExpression(space + twoWhiteSpaces)
+            this.CompileExpression()
             while (this.allTokens[this.currentTokenIndex].token == ",")
             {
-                this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ','
+              //  this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ','
                 currentTokenIndex++
-                this.CompileExpression(space + twoWhiteSpaces)
+                this.CompileExpression()
             }
         }
-        this.allParser += space + "</expressionList>\n"
-        */
+
     }
 
 
