@@ -552,26 +552,42 @@ class CompilationEngine {
 
          if(this.allTokens[(this.currentTokenIndex+1)].token == "(") // subroutineName '(' expressionList ')'
         {
-            this.allParser += space + oneWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // subroutineName
+            var subroutineName = this.allTokens[currentTokenIndex].token // subroutineName
             currentTokenIndex++
-            this.allParser += space + oneWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '('
+          //  this.allParser += space + oneWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '('
             currentTokenIndex++
-            this.CompileExpressionList(space + oneWhiteSpaces)
-            this.allParser += space + oneWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ')'
+
+          var nArg =  this.CompileExpressionList()
+            this.vmWriter.writePush(Segment.POINTER, 0)  // because this is method
+            this.vmWriter.writeCall(this.allSymbolTable.currentClassName+"."+subroutineName, (nArg+1))
+
+            // this.allParser += space + oneWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ')'
             currentTokenIndex++
         }
         else  // ( className | varName) '.' subroutineName  '(' expressionList ')'
         {
-            this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // className | varName
+            var classNameOrVarName = this.allTokens[currentTokenIndex].token // className | varName
             currentTokenIndex++
-            this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '.'
+            var dot= this.allTokens[currentTokenIndex].token // '.'
             currentTokenIndex++
-            this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // subroutineName
+            var subroutineName = this.allTokens[currentTokenIndex].token // subroutineName
             currentTokenIndex++
-            this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '('
+           // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '('
             currentTokenIndex++
-            this.CompileExpressionList(space + twoWhiteSpaces)
-            this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ')'
+            var nArg =  this.CompileExpressionList()
+            var type = this.allSymbolTable.typeOf(classNameOrVarName)
+            if(type.equals("NONE"))  // classNameOrVarName is current class or other class and subroutineName is method
+            {
+
+                vmWriter.writePush(
+                    this.allSymbolTable.segmentOfNormalVarName(classNameOrVarName),
+                    this.allSymbolTable.indexOf(classNameOrVarName))
+                this.vmWriter.writeCall(type+dot+subroutineName, (nArg+1))
+            }
+            else{  // classNameOrVarName is object of other class and subroutineName is function (static)
+                this.vmWriter.writeCall(classNameOrVarName+dot+subroutineName, nArg)
+            }
+           // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ')'
             currentTokenIndex++
         }
 
