@@ -521,28 +521,36 @@ class CompilationEngine {
 
 
 // expressionList: (expression (',' expression)* )?
-    fun CompileExpressionList()
+    fun CompileExpressionList() : Int
     {
         this.vmWriter.writeText("//CompileExpressionList\n")
 
+       var nArg : Int = 0
 
         if(this.allTokens[this.currentTokenIndex].token != ")")
         {
             this.CompileExpression()
+            nArg++
             while (this.allTokens[this.currentTokenIndex].token == ",")
             {
               //  this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ','
                 currentTokenIndex++
                 this.CompileExpression()
+                nArg++
             }
         }
-
+        return nArg
     }
 
 
+    // subroutineCall: subroutineName '(' expressionList ')' |
+    // ( className | varName) '.' subroutineName  '(' expressionList ')'
     fun compileSubroutineCall()
     {
-       /** if(this.allTokens[(this.currentTokenIndex+1)].token == "(")
+        this.vmWriter.writeText("//compileSubroutineCall\n")
+
+
+         if(this.allTokens[(this.currentTokenIndex+1)].token == "(") // subroutineName '(' expressionList ')'
         {
             this.allParser += space + oneWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // subroutineName
             currentTokenIndex++
@@ -552,7 +560,7 @@ class CompilationEngine {
             this.allParser += space + oneWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ')'
             currentTokenIndex++
         }
-        else
+        else  // ( className | varName) '.' subroutineName  '(' expressionList ')'
         {
             this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // className | varName
             currentTokenIndex++
@@ -566,7 +574,7 @@ class CompilationEngine {
             this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ')'
             currentTokenIndex++
         }
-        */
+
     }
 
 
