@@ -439,7 +439,7 @@ class CompilationEngine {
 
         this.CompileTerm()
         while (this.allTokens[this.currentTokenIndex].token != "]" && this.allTokens[this.currentTokenIndex].token != ";" &&
-            this.allTokens[this.currentTokenIndex].token != ")" )
+            this.allTokens[this.currentTokenIndex].token != ")" && this.allTokens[this.currentTokenIndex].token != "," )
         {
             var op = this.allTokens[currentTokenIndex].token // op
             currentTokenIndex++
@@ -585,14 +585,13 @@ class CompilationEngine {
             var type = this.allSymbolTable.typeOf(classNameOrVarName)
             if(type.equals("NONE"))  // classNameOrVarName is current class or other class and subroutineName is method
             {
-
+                this.vmWriter.writeCall(classNameOrVarName+dot+subroutineName, nArg)
+            }
+            else{  // classNameOrVarName is object of other class and subroutineName is function (static)
                 vmWriter.writePush(
                     this.allSymbolTable.segmentOfNormalVarName(classNameOrVarName),
                     this.allSymbolTable.indexOf(classNameOrVarName))
-                this.vmWriter.writeCall(classNameOrVarName+dot+subroutineName, (nArg+1))
-            }
-            else{  // classNameOrVarName is object of other class and subroutineName is function (static)
-                this.vmWriter.writeCall(type+dot+subroutineName, nArg)
+                this.vmWriter.writeCall(type+dot+subroutineName, (nArg+1))
             }
            // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ')'
             currentTokenIndex++

@@ -321,7 +321,7 @@ class CompilationEngine {
 
         this.CompileTerm(space + twoWhiteSpaces)
         while (this.allTokens[this.currentTokenIndex].token != "]" && this.allTokens[this.currentTokenIndex].token != ";" &&
-            this.allTokens[this.currentTokenIndex].token != ")" )
+            this.allTokens[this.currentTokenIndex].token != ")" && this.allTokens[this.currentTokenIndex].token != "," )
         {
             this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // op
             currentTokenIndex++

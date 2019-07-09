@@ -152,10 +152,10 @@ class AllSymbolTables {
        var kind = this.kindOf(varName)
         when (kind)
         {
-            Kind.FIELD -> Segment.THIS
-            Kind.STATIC -> Segment.STATIC
-            Kind.VAR -> Segment.LOCAL
-            Kind.ARG -> Segment.ARG
+            Kind.FIELD -> return Segment.THIS
+            Kind.STATIC -> return Segment.STATIC
+            Kind.VAR -> return Segment.LOCAL
+            Kind.ARG -> return Segment.ARG
         }
          return Segment.UNKNOWN
     }

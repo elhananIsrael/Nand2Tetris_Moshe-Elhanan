@@ -15,7 +15,7 @@ class VMWriter {
 
     fun writeText(text: String)
     {
-        this.myOutputVMFile.appendText(text)
+      //  this.myOutputVMFile.appendText(text)
     }
 
     fun writePush(segment: Segment, index: Int)
