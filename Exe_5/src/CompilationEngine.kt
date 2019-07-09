@@ -499,7 +499,7 @@ class CompilationEngine {
             {
                 when(token.type)
                 {
-                    "integerConstant" -> {this.vmWriter.writePush(Segment.CONST, token.type.toInt() )}
+                    "integerConstant" -> {this.vmWriter.writePush(Segment.CONST, token.token.toInt() )}
                     "stringConstant" -> {this.vmWriter.writePushString(token.token)}
                     "keyword" -> {
                         // 'true' | 'false' | 'null' | 'this'
