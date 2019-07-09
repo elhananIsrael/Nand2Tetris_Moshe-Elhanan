@@ -489,7 +489,7 @@ class CompilationEngine {
                 this.CompileExpression()
                 vmWriter.writeArithmetic(Command.ADD)  //  *(expression+varName)= top stack value = RAM address of varName[expression1]
                 vmWriter.writePop(Segment.POINTER, 1) // pointer 1 (that 0) = point to the RAM address of varName[expression1]
-                vmWriter.writePop(Segment.THAT, 0)  // that 0 =the value of expression2
+                vmWriter.writePush(Segment.THAT, 0)  // that 0 =the value of expression2 ?????pop?push
 
                 // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ']'
                 currentTokenIndex++
