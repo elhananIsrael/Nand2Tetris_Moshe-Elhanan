@@ -1,3 +1,5 @@
+package ex05
+
 import java.util.*
 import java.io.*
 import java.io.File
@@ -248,7 +250,8 @@ class JackTokenizer {
 
             allTokXml += "</tokens>"
 //var tokinazerFile: File=File(outputFilePath)
-           // tokinazerFile.writeText(allTokXml)
+
+          //  tokinazerFile.writeText(allTokXml)
            File(outputFilePath).writeText(allTokXml)// write Txml file
         }
         catch (e:IOException) {

@@ -1,3 +1,5 @@
+package ex05
+
 import java.io.File
 
 class VMWriter {

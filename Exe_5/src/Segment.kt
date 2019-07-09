@@ -1,3 +1,5 @@
+package ex05
+
 enum class Segment {
     CONST,
     ARG,

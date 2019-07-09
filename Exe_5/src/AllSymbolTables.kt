@@ -1,3 +1,6 @@
+package ex05
+
+
 class AllSymbolTables {
     var currentScope : String = ""
     var currentClassName : String = ""

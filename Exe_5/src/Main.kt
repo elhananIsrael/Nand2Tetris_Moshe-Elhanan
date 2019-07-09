@@ -1,3 +1,5 @@
+package ex05
+
 import java.io.IOException
 import java.io.File
 import java.nio.file.Path
@@ -7,11 +9,14 @@ fun main() {
 
     try
     {
-        println("Please enter input dir path:")
-        var inputDirPath = readLine()!!
+       /** println("Please enter input dir path:")
+        var inputDirPath = readLine()!!*/
+        var inputDirPath= "tests\\5\\input"
 
-        println("Please enter output dir path:")
-        var outputDirPath = readLine()
+        /**println("Please enter output dir path:")
+        var outputDirPath = readLine()*/
+        var outputDirPath= "tests\\‏exe_4\\output"
+
 
         File(inputDirPath).walkTopDown().forEach {
             if (it.isFile)

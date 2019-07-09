@@ -1,3 +1,5 @@
+package ex05
+
 enum class Command {
     ADD,
     SUB,

@@ -1,3 +1,5 @@
+package ex04
+
 enum class  TokenType {
     KEYWORD,
     SYMBOL,

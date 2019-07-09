@@ -1,3 +1,5 @@
+package ex05
+
 class Token {
 
     var token: String = ""
