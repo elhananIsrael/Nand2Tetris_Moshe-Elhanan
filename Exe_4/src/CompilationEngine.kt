@@ -6,8 +6,10 @@ import java.util.ArrayList
 
 class CompilationEngine {
 
-    var inputTxmlFilePath : String  = ""
-    var outputXmlFilePath : String  = ""
+     /** var inputTxmlFilePath : String  = ""
+    var outputXmlFilePath : String  = ""*/
+    var inputTxmlFile : File
+    var outputXmlFile : File
     var input: List<String> = emptyList()
     var allTokens : ArrayList<Token> = ArrayList()
     var allParser : String = ""
@@ -18,14 +20,17 @@ class CompilationEngine {
 
 
 
-    constructor(inputTxmlFilePath :String, outputXmlFilePath :String    )
+    constructor(inputTxmlFile :File, outputXmlFile :File    )
     {
+        this.inputTxmlFile = inputTxmlFile
+        this.outputXmlFile = outputXmlFile
+
         try
         {
-            this.inputTxmlFilePath = inputTxmlFilePath
-            this.outputXmlFilePath = outputXmlFilePath
+            /**this.inputTxmlFilePath = inputTxmlFilePath
+            this.outputVMFilePath = outputVMFilePath*/
 
-            this.input =  File(inputTxmlFilePath).readLines()
+            this.input =  this.inputTxmlFile.readLines()
             this.input.subList(1, (this.input.count()-1)).forEach {
                 this.token = this.fromXmlLineToToken(it)
                 this.allTokens.add(this.token)
@@ -34,7 +39,9 @@ class CompilationEngine {
 
             this.CompileClass("")
 
-            File(this.outputXmlFilePath).writeText(this.allParser)  //write all parser
+            //File(this.outputVMFilePath).writeText(this.allParser)  //write all parser in vm file
+
+            this.outputXmlFile.writeText(this.allParser)  //write all parser
 
         }
 

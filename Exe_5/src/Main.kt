@@ -15,29 +15,37 @@ fun main() {
 
         /**println("Please enter output dir path:")
         var outputDirPath = readLine()*/
-        var outputDirPath= "tests\\‏exe_4\\output"
+        var outputDirPath= "tests\\5\\output"
 
 
         File(inputDirPath).walkTopDown().forEach {
-            if (it.isFile)
-                if (File(it.name).extension == "jack") {
+            if (it.isFile) {
+                var inputFileTokenizerFile = File(it.absolutePath)
+                if (inputFileTokenizerFile.extension == "jack") {
 
                     var outputFileTokenizer = outputDirPath + '\\' + File(it.name).nameWithoutExtension + "T.xml"
-                    if (File(outputFileTokenizer).exists()) {
-                        File(outputFileTokenizer).delete()
+                    // var inputFileTokenizerFile = File(outputFileTokenizer)
+                    var outputFileTokenizerFile = File(outputFileTokenizer)
+                    if (outputFileTokenizerFile.exists()) {
+                        outputFileTokenizerFile.delete()
                     }
 
-                    var tokenizer: JackTokenizer = JackTokenizer(it.path)
-                    tokenizer.writeTokInOutputFile(outputFileTokenizer)
+                    // var tokenizer: JackTokenizer = JackTokenizer(it.path)
+                    var tokenizer: JackTokenizer = JackTokenizer(inputFileTokenizerFile)
+
+                    tokenizer.writeTokInOutputFile(outputFileTokenizerFile)
 
                     var outputFileParser = outputDirPath + '\\' + File(it.name).nameWithoutExtension + ".vm"
-                    if (File(outputFileParser).exists()) {
-                        File(outputFileParser).delete()
+                    var outputFileParserFile = File(outputFileParser)
+
+                    if (outputFileParserFile.exists()) {
+                        outputFileParserFile.delete()
                     }
 
-                    var parser: CompilationEngine = CompilationEngine(outputFileTokenizer, outputFileParser)
+                    var parser: CompilationEngine = CompilationEngine(outputFileTokenizerFile, outputFileParserFile)
 
                 }
+            }
         }
     }
 catch (e:IOException) {

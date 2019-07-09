@@ -8,7 +8,9 @@ import java.util.regex.Pattern
 
 class JackTokenizer {
 
-    var inputJackFilePath : String  = ""
+    //var inputJackFilePath : String  = ""
+    var inputJackFile : File
+
     var input: String = ""
     var startFirstToken: Int = 0
     var endFirstToken: Int = 0
@@ -28,12 +30,18 @@ class JackTokenizer {
         "*", "/", "&", "|", "<", ">", "=", "~")
 
 
-    constructor( inputJackFilePath :String   )
+    constructor( inputJackFile :File   )
     {
-        this.inputJackFilePath = inputJackFilePath
+        //this.inputJackFilePath = inputJackFilePath
+        this.inputJackFile = inputJackFile
+        this.input =  this.inputJackFile.readText()
+
+
         try
         {
-            this.input = File(inputJackFilePath).readText()
+            //   this.input = File(inputJackFilePath).readText()
+            // this.input =  this.inputJackFile.readText()
+
 
             var allCommentsPtrn : Pattern  = "(?:/\\*(?:[^*]|(?:\\*+[^*/]))*\\*+/)|(?://.*)".toPattern()
             this.input= this.input.replace( Regex(allCommentsPtrn.toString()), " ")
@@ -234,7 +242,7 @@ class JackTokenizer {
         else return "Unknown"
     }
 
-    fun writeTokInOutputFile (outputFilePath : String)  {
+    fun writeTokInOutputFile (outputFile : File)  {
 
         try {
             while (this.hasMoreTokens()) {
@@ -250,7 +258,7 @@ class JackTokenizer {
 
             allTokXml += "</tokens>"
 
-            File(outputFilePath).writeText(allTokXml) // write Txml file
+            outputFile.writeText(allTokXml)// write Txml file
         }
         catch (e:IOException) {
             println("IOException: error.")

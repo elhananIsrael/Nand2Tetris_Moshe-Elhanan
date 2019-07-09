@@ -7,9 +7,9 @@ class VMWriter {
     var myOutputVMFile : File
 
 
-    constructor(outputVMFilePath :String)
+    constructor(outputVMFilePath :File)
     {
-        myOutputVMFile = File(outputVMFilePath)
+        myOutputVMFile = outputVMFilePath
     }
 
 

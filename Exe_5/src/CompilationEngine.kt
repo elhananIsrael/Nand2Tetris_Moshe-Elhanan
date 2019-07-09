@@ -6,8 +6,11 @@ import java.util.ArrayList
 
 class CompilationEngine {
 
-    var inputTxmlFilePath : String  = ""
-    var outputVMFilePath : String  = ""
+   /** var inputTxmlFilePath : String  = ""
+    var outputVMFilePath : String  = ""*/
+    var inputTxmlFile : File
+    var outputVMFile : File
+
     var input: List<String> = emptyList()
     var allTokens : ArrayList<Token> = ArrayList()
     var allParser : String = ""
@@ -30,16 +33,18 @@ class CompilationEngine {
 */
 
 
-    constructor(inputTxmlFilePath :String, outputVMFilePath :String    )
+    constructor(inputTxmlFile :File, outputVMFile :File    )
     {
-        this.vmWriter = VMWriter(outputVMFilePath)
+        this.inputTxmlFile = inputTxmlFile
+        this.outputVMFile = outputVMFile
+        this.vmWriter = VMWriter(outputVMFile)
 
         try
         {
-            this.inputTxmlFilePath = inputTxmlFilePath
-            this.outputVMFilePath = outputVMFilePath
+            /**this.inputTxmlFilePath = inputTxmlFilePath
+            this.outputVMFilePath = outputVMFilePath*/
 
-            this.input =  File(inputTxmlFilePath).readLines()
+            this.input =  this.inputTxmlFile.readLines()
             this.input.subList(1, (this.input.count()-1)).forEach {
                 this.token = this.fromXmlLineToToken(it)
                 this.allTokens.add(this.token)
@@ -584,10 +589,10 @@ class CompilationEngine {
                 vmWriter.writePush(
                     this.allSymbolTable.segmentOfNormalVarName(classNameOrVarName),
                     this.allSymbolTable.indexOf(classNameOrVarName))
-                this.vmWriter.writeCall(type+dot+subroutineName, (nArg+1))
+                this.vmWriter.writeCall(classNameOrVarName+dot+subroutineName, (nArg+1))
             }
             else{  // classNameOrVarName is object of other class and subroutineName is function (static)
-                this.vmWriter.writeCall(classNameOrVarName+dot+subroutineName, nArg)
+                this.vmWriter.writeCall(type+dot+subroutineName, nArg)
             }
            // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ')'
             currentTokenIndex++
