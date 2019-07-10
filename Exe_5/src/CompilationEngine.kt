@@ -139,8 +139,7 @@ class CompilationEngine {
             currentTokenIndex++
         }
        // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString()  //  ';'
-
-     //   this.allParser += space + "</classVarDec>\n"
+        currentTokenIndex++
     }
 
     //  subroutineDec: ('constructor' | 'function' | 'method')  ('void' | type) subroutineName  '(' parameterList ')' subroutineBody

@@ -23,7 +23,7 @@ class JackTokenizer {
     var allTokens : ArrayList<Token> = ArrayList()
     var allTokXml : String = ""
 
-    val kwds = arrayOf("class", "constructor", "function", "var", "int", "char", "boolean",
+    val kwds = arrayOf("class", "constructor", "function", "method", "field", "static", "var", "int", "char", "boolean",
         "void", "true", "false", "null", "this", "let", "do", "if", "else", "while", "return")
 
     val syms = arrayOf("{", "}", "(", ")", "[", "]", ".", ",", ";", "+", "-",

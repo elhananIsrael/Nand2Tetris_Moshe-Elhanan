@@ -90,21 +90,24 @@ class CompilationEngine {
     }
 
 
+    // classVarDec: ('static' | 'field' ) type varName (',' varName)*  ';'
     fun CompileClassVarDec(space : String)
     {
         this.allParser += space + "<classVarDec>\n"
-        this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString()
-        this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex + 1].toXmlString()
-        this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex + 2].toXmlString()
+        this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString()  //('static' | 'field' )
+        this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex + 1].toXmlString() // type
+        this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex + 2].toXmlString() // varName
         currentTokenIndex += 3
-        while (this.allTokens[this.currentTokenIndex].token != ";")
+        while (this.allTokens[this.currentTokenIndex].token != ";") // (',' varName)*
         {
-            this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex + 2].toXmlString()
+            this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ','
             currentTokenIndex++
-            this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex + 2].toXmlString()
+            this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // varName
             currentTokenIndex++
         }
-        this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString()
+        this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ';'
+        currentTokenIndex++
+
         this.allParser += space + "</classVarDec>\n"
     }
 
@@ -390,12 +393,12 @@ class CompilationEngine {
     {
         if(this.allTokens[(this.currentTokenIndex+1)].token == "(")
         {
-            this.allParser += space + oneWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // subroutineName
+            this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // subroutineName
             currentTokenIndex++
-            this.allParser += space + oneWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '('
+            this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '('
             currentTokenIndex++
-            this.CompileExpressionList(space + oneWhiteSpaces)
-            this.allParser += space + oneWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ')'
+            this.CompileExpressionList(space + twoWhiteSpaces)
+            this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ')'
             currentTokenIndex++
         }
         else
