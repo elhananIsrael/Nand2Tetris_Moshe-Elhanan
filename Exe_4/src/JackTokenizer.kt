@@ -142,7 +142,8 @@ class JackTokenizer {
                 for (kwd in this.kwds) //check if keyword
                 {
                     for (index_kwds in endFirstToken downTo startFirstToken) {
-                        if (kwd == this.input.substring(startFirstToken, index_kwds+1) && !isHaveToken ) {
+                        if (kwd == this.input.substring(startFirstToken, index_kwds+1) &&
+                            (this.input[index_kwds+1].toString() in this.syms || endFirstToken.equals(index_kwds) ) && !isHaveToken ) {
                             endFirstToken = index_kwds
                             newToken = this.input.substring(startFirstToken, index_kwds+1)
                             this.currentToken.type = "keyword"
