@@ -13,15 +13,16 @@ class CompilationEngine {
 
     var input: List<String> = emptyList()
     var allTokens : ArrayList<Token> = ArrayList()
-    var allParser : String = ""
     var token : Token = Token()
     var currentTokenIndex : Int = 0
     var twoWhiteSpaces : String = "  "
-    var oneWhiteSpaces : String = " "
     var allSymbolTable: AllSymbolTables = AllSymbolTables()
     var vmWriter: VMWriter
-    var whileLabelIndex:Int = 0
-    var ifLabelIndex:Int = 0
+    var whileExpIndex:Int = 0
+    var whileEndIndex:Int = 0
+    var ifTrueIndex:Int = 0
+    var ifEndIndex:Int = 0
+    var ifFalseIndex:Int = 0
 
 
     /**
@@ -338,10 +339,10 @@ class CompilationEngine {
         currentTokenIndex++
      //   this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '('
         currentTokenIndex++
-        var label_1 = "whileLabel${this.whileLabelIndex}"
-        this.whileLabelIndex++
-        var label_2 = "whileLabel${this.whileLabelIndex}"
-        this.whileLabelIndex++
+        var label_1 = "WHILE_EXP${this.whileExpIndex}"
+        this.whileExpIndex++
+        var label_2 = "WHILE_END${this.whileEndIndex}"
+        this.whileEndIndex++
 
         this.vmWriter.writeLabel(label_1)  //label L1
         this.CompileExpression()   // compiled (expression)
@@ -392,18 +393,22 @@ class CompilationEngine {
         currentTokenIndex++
       //  this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '('
         currentTokenIndex++
-        var label_1 = "whileLabel${this.whileLabelIndex}"
-        this.whileLabelIndex++
+        var label_1 = "IF_TRUE${this.ifTrueIndex}"
+        this.ifTrueIndex++
+        var label_2: String = "IF_FALSE${this.ifFalseIndex}"
+        this.ifFalseIndex++
 
         this.CompileExpression()  //   compiled (expression)
-        this.vmWriter.writeArithmetic(Command.NOT)  // not
 
         //   this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ')'
         currentTokenIndex++
      //   this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '{'
         currentTokenIndex++
 
-        this.vmWriter.writeIf(label_1) // if-goto L1
+        this.vmWriter.writeIf(label_1) // if-goto IF_TRUE
+        this.vmWriter.writeGoto(label_2)  // goto IF_FALSE
+        this.vmWriter.writeLabel(label_1)  //  label IF_TRUE
+
         this.compileStatements()  //  compiled (statements1)
 
       //  this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '}'
@@ -414,19 +419,21 @@ class CompilationEngine {
             currentTokenIndex++
        //     this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '{'
             currentTokenIndex++
-            var label_2 = "whileLabel${this.whileLabelIndex}"
-            this.whileLabelIndex++
 
-            this.vmWriter.writeGoto(label_2)  // goto L2
-            this.vmWriter.writeLabel(label_1)  // label L1
+            var label_3 = "IF_END${this.ifEndIndex}"
+            this.ifEndIndex++
+
+            this.vmWriter.writeGoto(label_3)  // goto IF_END
+            this.vmWriter.writeLabel(label_2)  //  label IF_FALSE
+
             this.compileStatements()  // compiled (statements2)
-            this.vmWriter.writeLabel(label_1)  //label L2
+            this.vmWriter.writeLabel(label_3)  //label IF_END
 
          //   this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '}'
             currentTokenIndex++
         }
         else { //not have "else"
-            this.vmWriter.writeLabel(label_1)  //label L1
+            this.vmWriter.writeLabel(label_2)  //label IF_FALSE
         }
     }
 
@@ -563,8 +570,8 @@ class CompilationEngine {
           //  this.allParser += space + oneWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '('
             currentTokenIndex++
 
-          var nArg =  this.CompileExpressionList()
             this.vmWriter.writePush(Segment.POINTER, 0)  // because this is method
+          var nArg =  this.CompileExpressionList()
             this.vmWriter.writeCall(this.allSymbolTable.currentClassName+"."+subroutineName, (nArg+1))
 
             // this.allParser += space + oneWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ')'
@@ -580,16 +587,17 @@ class CompilationEngine {
             currentTokenIndex++
            // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '('
             currentTokenIndex++
-            var nArg =  this.CompileExpressionList()
             var type = this.allSymbolTable.typeOf(classNameOrVarName)
-            if(type.equals("NONE"))  // classNameOrVarName is current class or other class and subroutineName is method
+            if(type.equals("NONE"))  // classNameOrVarName is current class or other class and subroutineName is function (static)
             {
+                var nArg =  this.CompileExpressionList()
                 this.vmWriter.writeCall(classNameOrVarName+dot+subroutineName, nArg)
             }
-            else{  // classNameOrVarName is object of other class and subroutineName is function (static)
+            else{  // classNameOrVarName is object of other class and subroutineName is method
                 vmWriter.writePush(
                     this.allSymbolTable.segmentOfNormalVarName(classNameOrVarName),
                     this.allSymbolTable.indexOf(classNameOrVarName))
+                var nArg =  this.CompileExpressionList()
                 this.vmWriter.writeCall(type+dot+subroutineName, (nArg+1))
             }
            // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // ')'
@@ -598,5 +606,25 @@ class CompilationEngine {
 
     }
 
+
+    fun isIfElse(ifIndex: Int): Boolean {
+        var isIfElse: Boolean = false
+        var startSum: Int = 1
+        var endSum: Int = 0
+        var i:Int = ifIndex
+
+        while (!startSum.equals(endSum))
+        {
+            if(this.allTokens[i].token.equals("{"))
+                startSum++
+            else if(this.allTokens[i].token.equals("}"))
+                endSum++
+            i++
+        }
+        if(this.allTokens[i].token.equals("else"))
+            isIfElse = true
+
+        return isIfElse
+    }
 
 }

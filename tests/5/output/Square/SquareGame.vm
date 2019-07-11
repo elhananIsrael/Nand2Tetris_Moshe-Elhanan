@@ -51,8 +51,8 @@ eq
 if-goto IF_TRUE0
 goto IF_FALSE0
 label IF_TRUE0
-push constant 0
-not
+push constant 1
+neg
 pop local 1
 label IF_FALSE0
 push local 0
@@ -135,43 +135,43 @@ pop pointer 0
 push this 1
 push constant 1
 eq
-if-goto IF_TRUE0
-goto IF_FALSE0
-label IF_TRUE0
+if-goto IF_TRUE7
+goto IF_FALSE7
+label IF_TRUE7
 push this 0
 call Square.moveUp 1
 pop temp 0
-label IF_FALSE0
+label IF_FALSE7
 push this 1
 push constant 2
 eq
-if-goto IF_TRUE1
-goto IF_FALSE1
-label IF_TRUE1
+if-goto IF_TRUE8
+goto IF_FALSE8
+label IF_TRUE8
 push this 0
 call Square.moveDown 1
 pop temp 0
-label IF_FALSE1
+label IF_FALSE8
 push this 1
 push constant 3
 eq
-if-goto IF_TRUE2
-goto IF_FALSE2
-label IF_TRUE2
+if-goto IF_TRUE9
+goto IF_FALSE9
+label IF_TRUE9
 push this 0
 call Square.moveLeft 1
 pop temp 0
-label IF_FALSE2
+label IF_FALSE9
 push this 1
 push constant 4
 eq
-if-goto IF_TRUE3
-goto IF_FALSE3
-label IF_TRUE3
+if-goto IF_TRUE10
+goto IF_FALSE10
+label IF_TRUE10
 push this 0
 call Square.moveRight 1
 pop temp 0
-label IF_FALSE3
+label IF_FALSE10
 push constant 5
 call Sys.wait 1
 pop temp 0

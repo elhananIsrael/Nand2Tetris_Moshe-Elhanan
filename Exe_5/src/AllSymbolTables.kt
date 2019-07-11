@@ -90,7 +90,7 @@ class AllSymbolTables {
                 this.SubroutineScope_SymbolTable.forEach {
                     if(it.name.equals(name))
                         return it.kind       }
-                this.SubroutineScope_SymbolTable.forEach {
+                this.ClassScope_SymbolTable.forEach {
                     if(it.name.equals(name) && !(this.currentSubroutineType.equals("function") && it.kind.equals(Kind.FIELD)))
                         return it.kind       }
             }
@@ -112,7 +112,7 @@ class AllSymbolTables {
                 this.SubroutineScope_SymbolTable.forEach {
                     if(it.name.equals(name))
                         return it.type       }
-                this.SubroutineScope_SymbolTable.forEach {
+                this.ClassScope_SymbolTable.forEach {
                     if(it.name.equals(name) && !(this.currentSubroutineType.equals("function") && it.kind.equals(Kind.FIELD)))
                         return it.type       }
             }
@@ -133,7 +133,7 @@ class AllSymbolTables {
                 this.SubroutineScope_SymbolTable.forEach {
                     if(it.name.equals(name))
                         return it.index       }
-                this.SubroutineScope_SymbolTable.forEach {
+                this.ClassScope_SymbolTable.forEach {
                     if(it.name.equals(name) && !(this.currentSubroutineType.equals("function") && it.kind.equals(Kind.FIELD)))
                         return it.index       }
             }
