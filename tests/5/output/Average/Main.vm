@@ -1,3 +1,4 @@
+
 function Main.main 4
 push constant 18
 call String.new 1
@@ -181,3 +182,4 @@ call Output.println 0
 pop temp 0
 push constant 0
 return
+

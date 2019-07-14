@@ -2,7 +2,6 @@ package ex05
 
 import java.io.IOException
 import java.io.File
-import java.nio.file.Path
 
 
 fun main() {
@@ -24,13 +23,11 @@ fun main() {
                 if (inputFileTokenizerFile.extension == "jack") {
 
                     var outputFileTokenizer = outputDirPath + '\\' + File(it.name).nameWithoutExtension + "T.xml"
-                    // var inputFileTokenizerFile = File(outputFileTokenizer)
                     var outputFileTokenizerFile = File(outputFileTokenizer)
                     if (outputFileTokenizerFile.exists()) {
                         outputFileTokenizerFile.delete()
                     }
 
-                    // var tokenizer: JackTokenizer = JackTokenizer(it.path)
                     var tokenizer: JackTokenizer = JackTokenizer(inputFileTokenizerFile)
 
                     tokenizer.writeTokInOutputFile(outputFileTokenizerFile)

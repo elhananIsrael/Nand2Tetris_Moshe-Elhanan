@@ -1,3 +1,20 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function PongGame.new 0
 push constant 7
 call Memory.alloc 1
@@ -65,6 +82,8 @@ push constant 0
 pop this 5
 push pointer 0
 return
+
+
 function PongGame.dispose 0
 push argument 0
 pop pointer 0
@@ -79,14 +98,20 @@ call Memory.deAlloc 1
 pop temp 0
 push constant 0
 return
+
+
 function PongGame.newInstance 0
 call PongGame.new 0
 pop static 0
 push constant 0
 return
+
+
 function PongGame.getInstance 0
 push static 0
 return
+
+
 function PongGame.run 1
 push argument 0
 pop pointer 0
@@ -205,6 +230,8 @@ pop temp 0
 label IF_FALSE3
 push constant 0
 return
+
+
 function PongGame.moveBall 5
 push argument 0
 pop pointer 0
@@ -310,3 +337,4 @@ pop temp 0
 label IF_FALSE4
 push constant 0
 return
+

@@ -6,8 +6,6 @@ import java.util.ArrayList
 
 class CompilationEngine {
 
-   /** var inputTxmlFilePath : String  = ""
-    var outputVMFilePath : String  = ""*/
     var inputTxmlFile : File
     var outputVMFile : File
 
@@ -15,7 +13,7 @@ class CompilationEngine {
     var allTokens : ArrayList<Token> = ArrayList()
     var token : Token = Token()
     var currentTokenIndex : Int = 0
-    var twoWhiteSpaces : String = "  "
+    var oneWhiteLines : String = "\n"
     var allSymbolTable: AllSymbolTables = AllSymbolTables()
     var vmWriter: VMWriter
     var whileExpIndex:Int = 0
@@ -23,15 +21,6 @@ class CompilationEngine {
     var ifTrueIndex:Int = 0
     var ifEndIndex:Int = 0
     var ifFalseIndex:Int = 0
-
-
-    /**
-    var currentScope : String = ""
-    var currentClassName : String = ""
-    var currentSubroutineName : String = ""
-    var ClassScope_SymbolTable  = arrayListOf<SymbolTable>()
-    var SubroutineScope_SymbolTable  = arrayListOf<SymbolTable>()
-*/
 
 
     constructor(inputTxmlFile :File, outputVMFile :File    )
@@ -42,8 +31,6 @@ class CompilationEngine {
 
         try
         {
-            /**this.inputTxmlFilePath = inputTxmlFilePath
-            this.outputVMFilePath = outputVMFilePath*/
 
             this.input =  this.inputTxmlFile.readLines()
             this.input.subList(1, (this.input.count()-1)).forEach {
@@ -54,8 +41,6 @@ class CompilationEngine {
 
             this.CompileClass()
 
-            //File(this.outputVMFilePath).writeText(this.allParser)  //write all parser in vm file
-
         }
 
         catch (e: IOException) {
@@ -64,10 +49,9 @@ class CompilationEngine {
     }
 
 
-
     fun fromXmlLineToToken(lineWithToken: String): Token
     {
-        var tempToken : Token = Token()
+        var tempToken = Token()
         var lineXml : String = lineWithToken
 
         lineXml = lineXml.substring(1)
@@ -86,9 +70,7 @@ class CompilationEngine {
 
     this.allSymbolTable.ClassScope_SymbolTable.clear()
     this.allSymbolTable.currentScope = "Class"
-    this.vmWriter.writeText("//CompileClass\n")
 
-   // this.allParser+="<class>\n"
     //this.allParser+=twoWhiteSpaces+ this.allTokens[currentTokenIndex].toXmlString()  // 'class'
     var className=this.allTokens[currentTokenIndex+1].token  // className
     this.allSymbolTable.currentClassName = className
@@ -106,7 +88,6 @@ class CompilationEngine {
 
   //  this.allParser+=twoWhiteSpaces+ this.allTokens[currentTokenIndex].toXmlString()  // '}'
     currentTokenIndex++
-   // this.allParser+="</class>\n"
 
     }
 
@@ -114,7 +95,7 @@ class CompilationEngine {
     fun CompileClassVarDec()
     {
 
-        this.vmWriter.writeText("//CompileClassVarDec\n")
+        this.vmWriter.writeText(this.oneWhiteLines)
 
         var kind = this.allTokens[currentTokenIndex].token  // ('static' | 'field' )
         var type = this.allTokens[currentTokenIndex+1].token  //  type
@@ -141,12 +122,14 @@ class CompilationEngine {
         }
        // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString()  //  ';'
         currentTokenIndex++
+
+        this.vmWriter.writeText(this.oneWhiteLines)
     }
 
     //  subroutineDec: ('constructor' | 'function' | 'method')  ('void' | type) subroutineName  '(' parameterList ')' subroutineBody
     fun CompileSubroutineDec()
     {
-        this.vmWriter.writeText("//CompileSubroutineDec\n")
+        this.vmWriter.writeText(this.oneWhiteLines)
 
         var subroutineType= this.allTokens[currentTokenIndex].token //('constructor' | 'function' | 'method')
         currentTokenIndex++
@@ -161,13 +144,15 @@ class CompilationEngine {
      //   this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() //  ')'
         currentTokenIndex++
         this.compileSubroutineBody()
+
+        this.vmWriter.writeText(this.oneWhiteLines)
+
     }
 
 
     //  parameterList: ( (type varName)  (',' type varName)*)?
     fun compileParameterList()
     {
-        this.vmWriter.writeText("//compileParameterList\n")
 
         if(this.allTokens[this.currentTokenIndex].token != ")")
         {
@@ -194,7 +179,6 @@ class CompilationEngine {
     //  subroutineBody: '{' varDec* statements '}'
     fun compileSubroutineBody()
     {
-        this.vmWriter.writeText("//compileSubroutineBody\n")
 
         //  this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // '{'
         currentTokenIndex++
@@ -227,7 +211,6 @@ class CompilationEngine {
     // varDec: 'var' type varName (',' varName)* ';'
     fun compileVarDec()
     {
-        this.vmWriter.writeText("//compileVarDec\n")
 
         //this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // 'var'
         currentTokenIndex++
@@ -253,7 +236,6 @@ class CompilationEngine {
     // statement: letStatement | ifStatement | whileStatement | doStatement | returnStatement
     fun compileStatements()
     {
-        this.vmWriter.writeText("//compileStatements\n")
 
         while (this.allTokens[this.currentTokenIndex].token == "let" || this.allTokens[this.currentTokenIndex].token == "if" ||
             this.allTokens[this.currentTokenIndex].token == "while" || this.allTokens[this.currentTokenIndex].token == "do" ||
@@ -276,7 +258,6 @@ class CompilationEngine {
     // doStatement: 'do'  subroutineCall ';'
     fun compileDo()
     {
-        this.vmWriter.writeText("//compileDo\n")
 
        // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // 'do'
         currentTokenIndex++
@@ -291,7 +272,6 @@ class CompilationEngine {
     // letStatement: 'let'  varName ('[' expression ']')? '=' expression ';'
     fun compileLet()
     {
-        this.vmWriter.writeText("//compileLet\n")
 
        // this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // 'let'
         currentTokenIndex++
@@ -333,7 +313,6 @@ class CompilationEngine {
     // whileStatement: 'while' '(' expression ')' '{' statements '}'
     fun compileWhile()
     {
-        this.vmWriter.writeText("//compileWhile\n")
 
      //   this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // 'while'
         currentTokenIndex++
@@ -364,7 +343,6 @@ class CompilationEngine {
     // ReturnStatement 'return'  expression? ';'
     fun compileReturn()
     {
-        this.vmWriter.writeText("//compileReturn\n")
 
         //this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // 'return'
         currentTokenIndex++
@@ -387,7 +365,6 @@ class CompilationEngine {
     //  ifStatement: 'if' '(' expression ')' '{' statements '}'  ( 'else' '{' statements '}' )?
     fun compileIf()
     {
-        this.vmWriter.writeText("//compileIf\n")
 
       //  this.allParser += space + twoWhiteSpaces + this.allTokens[currentTokenIndex].toXmlString() // 'if'
         currentTokenIndex++
@@ -441,7 +418,6 @@ class CompilationEngine {
     // expression: term (op term)*
     fun CompileExpression()
     {
-        this.vmWriter.writeText("//CompileExpression\n")
 
         this.CompileTerm()
         while (this.allTokens[this.currentTokenIndex].token != "]" && this.allTokens[this.currentTokenIndex].token != ";" &&
@@ -460,7 +436,6 @@ class CompilationEngine {
      //  subroutineCall  | '(' expression ')' | unaryOp term
     fun CompileTerm()
     {
-        this.vmWriter.writeText("//CompileTerm\n")
 
         if(this.allTokens[this.currentTokenIndex].token == "-" || this.allTokens[this.currentTokenIndex].token == "~" )  //  unaryOp term
         {
@@ -501,7 +476,7 @@ class CompilationEngine {
                 currentTokenIndex++
 
             }
-            else // //token = integerConstant | stringConstant | keywordConstant | varName
+            else  //token = integerConstant | stringConstant | keywordConstant | varName
             {
                 when(token.type)
                 {
@@ -536,7 +511,6 @@ class CompilationEngine {
 // expressionList: (expression (',' expression)* )?
     fun CompileExpressionList() : Int
     {
-        this.vmWriter.writeText("//CompileExpressionList\n")
 
        var nArg : Int = 0
 
@@ -560,8 +534,6 @@ class CompilationEngine {
     // ( className | varName) '.' subroutineName  '(' expressionList ')'
     fun compileSubroutineCall()
     {
-        this.vmWriter.writeText("//compileSubroutineCall\n")
-
 
          if(this.allTokens[(this.currentTokenIndex+1)].token == "(") // subroutineName '(' expressionList ')'
         {

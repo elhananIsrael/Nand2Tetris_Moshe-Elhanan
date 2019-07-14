@@ -1,3 +1,4 @@
+
 function Main.main 1
 call PongGame.newInstance 0
 pop temp 0
@@ -11,3 +12,4 @@ call PongGame.dispose 1
 pop temp 0
 push constant 0
 return
+

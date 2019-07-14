@@ -8,7 +8,6 @@ import java.util.regex.Pattern
 
 class JackTokenizer {
 
-    //var inputJackFilePath : String  = ""
     var inputJackFile : File
 
     var input: String = ""
@@ -39,9 +38,6 @@ class JackTokenizer {
 
         try
         {
-            //   this.input = File(inputJackFilePath).readText()
-            // this.input =  this.inputJackFile.readText()
-
 
             var allCommentsPtrn : Pattern  = "(?:/\\*(?:[^*]|(?:\\*+[^*/]))*\\*+/)|(?://.*)".toPattern()
             this.input= this.input.replace( Regex(allCommentsPtrn.toString()), " ")
